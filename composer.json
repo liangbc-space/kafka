@@ -1,0 +1,21 @@
+{
+  "name": "liangbincheng/kafka",
+  "description": "Based on rdkafka, kafka advanced consumers, low-level consumers and producers",
+  "type": "library",
+  "license": "MIT",
+  "minimum-stability": "dev",
+  "authors": [
+    {
+      "name": "liangbincheng",
+      "email": "lbc346093@163.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.6"
+  },
+  "autoload": {
+    "psr-4": {
+      "kafka\\": "src/"
+    }
+  }
+}
