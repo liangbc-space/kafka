@@ -3,7 +3,7 @@
   "description": "Based on rdkafka, kafka advanced consumers, low-level consumers and producers",
   "type": "library",
   "license": "MIT",
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "authors": [
     {
       "name": "liangbincheng",
