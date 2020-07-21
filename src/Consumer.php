@@ -2,6 +2,8 @@
 
 namespace kafka;
 
+use RdKafka\KafkaConsumer;
+
 abstract class Consumer
 {
 
@@ -31,6 +33,21 @@ abstract class Consumer
      * @return mixed
      */
     abstract function getInstance($groupId);
+
+
+    public function topics()
+    {
+        if (!self::$consumerInstance instanceof \RdKafka\Consumer && !self::$consumerInstance instanceof KafkaConsumer)
+            throw new \Exception('请先创建一个消费者实例');
+
+        $metadata = self::$consumerInstance->getMetadata(true, null, $this->consumeConfig->consumeTimeout);
+
+        if (!$metadata)
+            return null;
+
+        return $metadata->getTopics();
+
+    }
 
 
 }

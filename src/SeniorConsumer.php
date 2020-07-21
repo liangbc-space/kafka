@@ -2,7 +2,9 @@
 
 namespace kafka;
 
+use RdKafka\Conf;
 use RdKafka\KafkaConsumer;
+use RdKafka\Message;
 use RdKafka\TopicConf;
 
 class SeniorConsumer extends Consumer implements ConsumerInterface
@@ -14,7 +16,7 @@ class SeniorConsumer extends Consumer implements ConsumerInterface
 
     public function getInstance($groupId)
     {
-        $conf = new \RdKafka\Conf();
+        $conf = new Conf();
 
         $conf->setRebalanceCb(function (KafkaConsumer $kafka, $err, array $partitions = null) {
             switch ($err) {
@@ -41,6 +43,13 @@ class SeniorConsumer extends Consumer implements ConsumerInterface
 
         $conf->set('enable.auto.commit', intval($this->autoCommit));
 
+        if (function_exists('pcntl_sigprocmask')) {
+            pcntl_sigprocmask(SIG_BLOCK, array(SIGIO));
+            $conf->set('internal.termination.signal', SIGIO);
+        } else {
+            $conf->set('queue.buffering.max.ms', 1);
+        }
+
         $topicConf = new TopicConf();
 
         $topicConf->set("auto.commit.interval.ms", $this->autoCommitIntervalMs);
@@ -60,17 +69,19 @@ class SeniorConsumer extends Consumer implements ConsumerInterface
 
     public function consumer(array $topics, callable $callback)
     {
-        if (!self::$consumerInstance instanceof \RdKafka\KafkaConsumer)
-            throw new Exception('请先创建一个消费者实例');
+        if (!self::$consumerInstance instanceof KafkaConsumer)
+            throw new \Exception('请先创建一个消费者实例');
 
         self::$consumerInstance->subscribe($topics);
 
         while (true) {
             $message = self::$consumerInstance->consume($this->consumeConfig->consumeTimeout);
 
-            if (!$message instanceof \RdKafka\Message) {
+            if (!$message instanceof Message) {
                 break;
             }
+
+            $topicNames = implode(',', array_filter($topics));
 
             switch ($message->err) {
                 case RD_KAFKA_RESP_ERR_NO_ERROR:
@@ -81,10 +92,12 @@ class SeniorConsumer extends Consumer implements ConsumerInterface
                     //self::$consumerInstance->commit($message);
                     break;
                 case RD_KAFKA_RESP_ERR__PARTITION_EOF:
-                    echo "No more messages; will wait for more\n";
+                    echo "【{$topicNames}】 No more messages; will wait for more" . PHP_EOL;
+                    $callback($message, self::$consumerInstance);
                     break;
                 case RD_KAFKA_RESP_ERR__TIMED_OUT:
-                    echo "Timed out\n";
+                    echo "【{$topicNames}】 Timed out" . PHP_EOL;
+                    $callback($message, self::$consumerInstance);
                     break;
                 default:
                     throw new \Exception($message->errstr(), $message->err);

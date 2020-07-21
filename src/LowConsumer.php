@@ -72,10 +72,12 @@ class LowConsumer extends Consumer implements ConsumerInterface
 
                     break;
                 case RD_KAFKA_RESP_ERR__PARTITION_EOF:
-                    echo "No more messages; will wait for more\n";
+                    echo "No more messages; will wait for more" . PHP_EOL;
+                    $callback($message, self::$consumerInstance);
                     break;
                 case RD_KAFKA_RESP_ERR__TIMED_OUT:
-                    echo "Timed out\n";
+                    echo "Timed out" . PHP_EOL;
+                    $callback($message, self::$consumerInstance);
                     break;
                 default:
                     throw new \Exception($message->errstr(), $message->err);
