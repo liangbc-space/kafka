@@ -1,5 +1,5 @@
 {
-  "name": "liangbincheng/kafka",
+  "name": "liangbc/kafka",
   "description": "Based on rdkafka, kafka advanced consumers, low-level consumers and producers",
   "type": "library",
   "license": "MIT",
