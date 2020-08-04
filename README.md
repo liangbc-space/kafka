@@ -4,7 +4,7 @@ Based on rdkafka, kafka advanced consumers, low-level consumers and producers
 
 # installation
 ```
-composer require liangbincheng\kafka
+composer require liangbc\kafka
 ```
 
 
