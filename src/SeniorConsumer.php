@@ -92,11 +92,11 @@ class SeniorConsumer extends Consumer implements ConsumerInterface
                     //self::$consumerInstance->commit($message);
                     break;
                 case RD_KAFKA_RESP_ERR__PARTITION_EOF:
-                    echo "【{$topicNames}】 No more messages; will wait for more" . PHP_EOL;
+                    $this->info("【{$topicNames}】 No more messages; will wait for more");
                     $callback($message, self::$consumerInstance);
                     break;
                 case RD_KAFKA_RESP_ERR__TIMED_OUT:
-                    echo "【{$topicNames}】 Timed out" . PHP_EOL;
+                    $this->info("【{$topicNames}】 Timed out");
                     $callback($message, self::$consumerInstance);
                     break;
                 default:
